@@ -27,6 +27,7 @@ import com.yupi.mianshiya.model.vo.QuestionBankVO;
 import com.yupi.mianshiya.model.vo.QuestionVO;
 import com.yupi.mianshiya.sentinel.SentinelConstant;
 import com.yupi.mianshiya.service.QuestionService;
+import com.yupi.mianshiya.service.AiService;
 import com.yupi.mianshiya.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -53,6 +54,9 @@ public class QuestionController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private AiService aiService;
 
     // region 增删改查
 
@@ -112,6 +116,7 @@ public class QuestionController {
         // 操作数据库
         boolean result = questionService.removeById(id);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        aiService.clearQuestionAiData(id);
         return ResultUtils.success(true);
     }
 
@@ -143,6 +148,7 @@ public class QuestionController {
         // 操作数据库
         boolean result = questionService.updateById(question);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        aiService.clearQuestionAiCache(id);
         return ResultUtils.success(true);
     }
 
@@ -351,6 +357,7 @@ public class QuestionController {
         // 操作数据库
         boolean result = questionService.updateById(question);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        aiService.clearQuestionAiCache(id);
         return ResultUtils.success(true);
     }
 
@@ -375,6 +382,7 @@ public class QuestionController {
     public BaseResponse<Boolean> batchDeleteQuestions(@RequestBody QuestionBatchDeleteRequest questionBatchDeleteRequest) {
         ThrowUtils.throwIf(questionBatchDeleteRequest == null, ErrorCode.PARAMS_ERROR);
         questionService.batchDeleteQuestions(questionBatchDeleteRequest.getQuestionIdList());
+        questionBatchDeleteRequest.getQuestionIdList().forEach(aiService::clearQuestionAiData);
         return ResultUtils.success(true);
     }
 }

@@ -69,7 +69,7 @@ export default async function BankQuestionPage({ params }) {
           <Menu items={questionMenuItemList} selectedKeys={[question.id]} />
         </Sider>
         <Content>
-          <QuestionCard question={question} />
+          <QuestionCard question={question} questionBankId={Number(questionBankId)} />
         </Content>
       </Flex>
     </div>

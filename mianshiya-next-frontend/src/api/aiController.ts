@@ -1,0 +1,77 @@
+// @ts-ignore
+/* eslint-disable */
+import request from '@/libs/request';
+
+/** getQuestionExplain POST /api/ai/question/explain */
+export async function getQuestionExplainUsingPost(
+  body: API.AiQuestionExplainRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseAiQuestionExplainVO_>('/api/ai/question/explain', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** getQuestionHint POST /api/ai/question/hint */
+export async function getQuestionHintUsingPost(
+  body: API.AiQuestionHintRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseAiQuestionHintVO_>('/api/ai/question/hint', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** recommendQuestions POST /api/ai/question/recommend */
+export async function recommendQuestionsUsingPost(
+  body: API.AiQuestionRecommendRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseAiQuestionRecommendVO_>('/api/ai/question/recommend', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** aiSearchQuestions POST /api/ai/search/questions */
+export async function aiSearchQuestionsUsingPost(
+  body: API.AiQuestionSearchRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseAiQuestionSearchVO_>('/api/ai/search/questions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** getUserAiReport GET /api/ai/user/report */
+export async function getUserAiReportUsingGet(
+  params?: API.getUserAiReportUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseUserAiReportVO_>('/api/ai/user/report', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}

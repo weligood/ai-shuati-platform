@@ -1,7 +1,80 @@
 declare namespace API {
+  type AiQuestionExplainRequest = {
+    questionId?: number;
+  };
+
+  type AiQuestionExplainVO = {
+    followUpQuestions?: string[];
+    keyPoints?: string[];
+    pitfalls?: string[];
+    plainExplanation?: string;
+    questionId?: number;
+    source?: string;
+  };
+
+  type AiQuestionHintRequest = {
+    level?: number;
+    questionId?: number;
+  };
+
+  type AiQuestionRecommendRequest = {
+    questionId?: number;
+  };
+
+  type AiQuestionRecommendVO = {
+    recommendationReason?: string;
+    questions?: QuestionVO[];
+    source?: string;
+  };
+
+  type AiQuestionSearchRequest = {
+    pageSize?: number;
+    query?: string;
+  };
+
+  type AiQuestionSearchVO = {
+    questions?: QuestionVO[];
+    reason?: string;
+    rewrittenQuery?: string;
+    source?: string;
+    tags?: string[];
+  };
+
+  type AiQuestionHintVO = {
+    hintContent?: string;
+    level?: number;
+    questionId?: number;
+    source?: string;
+    totalLevels?: number;
+  };
+
   type BaseResponseBoolean_ = {
     code?: number;
     data?: boolean;
+    message?: string;
+  };
+
+  type BaseResponseAiQuestionExplainVO_ = {
+    code?: number;
+    data?: AiQuestionExplainVO;
+    message?: string;
+  };
+
+  type BaseResponseAiQuestionHintVO_ = {
+    code?: number;
+    data?: AiQuestionHintVO;
+    message?: string;
+  };
+
+  type BaseResponseAiQuestionRecommendVO_ = {
+    code?: number;
+    data?: AiQuestionRecommendVO;
+    message?: string;
+  };
+
+  type BaseResponseAiQuestionSearchVO_ = {
+    code?: number;
+    data?: AiQuestionSearchVO;
     message?: string;
   };
 
@@ -131,6 +204,12 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponseUserAiReportVO_ = {
+    code?: number;
+    data?: UserAiReportVO;
+    message?: string;
+  };
+
   type checkUsingGETParams = {
     /** echostr */
     echostr?: string;
@@ -179,6 +258,11 @@ declare namespace API {
   type getUserByIdUsingGETParams = {
     /** id */
     id?: number;
+  };
+
+  type getUserAiReportUsingGETParams = {
+    /** reportType */
+    reportType?: string;
   };
 
   type getUserSignInRecordUsingGETParams = {
@@ -582,6 +666,15 @@ declare namespace API {
     userId?: number;
   };
 
+  type QuestionRecordAddRequest = {
+    actionType?: string;
+    isCorrect?: number;
+    questionBankId?: number;
+    questionId?: number;
+    usedAi?: number;
+    viewDuration?: number;
+  };
+
   type QuestionUpdateRequest = {
     answer?: string;
     content?: string;
@@ -679,5 +772,17 @@ declare namespace API {
     userName?: string;
     userProfile?: string;
     userRole?: string;
+  };
+
+  type UserAiReportVO = {
+    aiUsageCount?: number;
+    endDate?: string;
+    recommendations?: string[];
+    reportType?: string;
+    source?: string;
+    startDate?: string;
+    summary?: string;
+    totalRecords?: number;
+    weakPoints?: string[];
   };
 }

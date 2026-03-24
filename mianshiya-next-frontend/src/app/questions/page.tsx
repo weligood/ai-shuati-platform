@@ -3,6 +3,7 @@ import Title from "antd/es/typography/Title";
 import { message } from "antd";
 import { searchQuestionVoByPageUsingPost } from "@/api/questionController";
 import QuestionTable from "@/components/QuestionTable";
+import AiSearchPanel from "@/components/AiSearchPanel";
 import "./index.css";
 
 /**
@@ -32,6 +33,7 @@ export default async function QuestionsPage({ searchParams }) {
   return (
     <div id="questionsPage" className="max-width-content">
       <Title level={3}>题目大全</Title>
+      <AiSearchPanel />
       <QuestionTable
         defaultQuestionList={questionList}
         defaultTotal={total}

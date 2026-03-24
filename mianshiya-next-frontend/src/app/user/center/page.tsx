@@ -6,6 +6,7 @@ import Title from "antd/es/typography/Title";
 import Paragraph from "antd/es/typography/Paragraph";
 import { useState } from "react";
 import CalendarChart from "@/app/user/center/components/CalendarChart";
+import AiReportCard from "@/app/user/center/components/AiReportCard";
 import "./index.css";
 
 /**
@@ -50,6 +51,10 @@ export default function UserCenterPage() {
                 key: "others",
                 label: "其他",
               },
+              {
+                key: "ai",
+                label: "AI 学习报告",
+              },
             ]}
             activeTabKey={activeTabKey}
             onTabChange={(key: string) => {
@@ -62,6 +67,7 @@ export default function UserCenterPage() {
               </>
             )}
             {activeTabKey === "others" && <>bbb</>}
+            {activeTabKey === "ai" && <AiReportCard />}
           </Card>
         </Col>
       </Row>

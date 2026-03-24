@@ -189,6 +189,14 @@ cos:
     secretKey: xxx
     region: xxx
     bucket: xxx
+# AI 配置
+ai:
+  # todo 配置通义千问 DashScope API Key，未配置时自动使用本地规则模式
+  qwenApiKey: ${DASHSCOPE_API_KEY:}
+  qwenModel: qwen-plus
+  qwenEndpoint: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+  temperature: 0.2
+  timeoutMillis: 15000
 # 接口文档配置
 knife4j:
   enable: true

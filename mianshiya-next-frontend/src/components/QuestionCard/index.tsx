@@ -1,13 +1,24 @@
 "use client";
-import { Card } from "antd";
+import { Button, Card, List, Skeleton, Space, Typography, message } from "antd";
 import Title from "antd/es/typography/Title";
+import Paragraph from "antd/es/typography/Paragraph";
 import TagList from "@/components/TagList";
 import MdViewer from "@/components/MdViewer";
 import useAddUserSignInRecord from "@/hooks/useAddUserSignInRecord";
+import useAddQuestionRecord from "@/hooks/useAddQuestionRecord";
+import {
+  recommendQuestionsUsingPost,
+  getQuestionExplainUsingPost,
+  getQuestionHintUsingPost,
+} from "@/api/aiController";
+import { addQuestionRecordUsingPost } from "@/api/questionRecordController";
+import { useState } from "react";
+import QuestionList from "@/components/QuestionList";
 import "./index.css";
 
 interface Props {
   question: API.QuestionVO;
+  questionBankId?: number;
 }
 
 /**
@@ -16,10 +27,118 @@ interface Props {
  * @constructor
  */
 const QuestionCard = (props: Props) => {
-  const { question } = props;
+  const { question, questionBankId } = props;
 
   // 签到
   useAddUserSignInRecord();
+  // 记录题目浏览
+  useAddQuestionRecord(question.id, questionBankId);
+
+  const [aiExplain, setAiExplain] = useState<API.AiQuestionExplainVO>();
+  const [aiHint, setAiHint] = useState<API.AiQuestionHintVO>();
+  const [recommendation, setRecommendation] =
+    useState<API.AiQuestionRecommendVO>();
+  const [currentHintLevel, setCurrentHintLevel] = useState<number>(0);
+  const [explainLoading, setExplainLoading] = useState<boolean>(false);
+  const [hintLoading, setHintLoading] = useState<boolean>(false);
+  const [recommendLoading, setRecommendLoading] = useState<boolean>(false);
+  const [markingIncorrect, setMarkingIncorrect] = useState<boolean>(false);
+
+  const addAiRecord = async (actionType: string) => {
+    if (!question.id) {
+      return;
+    }
+    try {
+      await addQuestionRecordUsingPost({
+        questionId: question.id,
+        questionBankId,
+        actionType,
+        usedAi: 1,
+      });
+    } catch (e) {
+      // 行为记录失败不影响主流程
+    }
+  };
+
+  const fetchExplain = async () => {
+    if (!question.id) {
+      return;
+    }
+    if (aiExplain) {
+      return;
+    }
+    setExplainLoading(true);
+    try {
+      const res = await getQuestionExplainUsingPost({
+        questionId: question.id,
+      });
+      setAiExplain(res.data);
+      await addAiRecord("use_ai_explain");
+    } catch (e) {
+      message.error("获取 AI 讲解失败，" + (e as Error).message);
+    }
+    setExplainLoading(false);
+  };
+
+  const fetchHint = async (level: number) => {
+    if (!question.id) {
+      return;
+    }
+    if (aiHint && currentHintLevel === level) {
+      return;
+    }
+    setHintLoading(true);
+    try {
+      const res = await getQuestionHintUsingPost({
+        questionId: question.id,
+        level,
+      });
+      setAiHint(res.data);
+      setCurrentHintLevel(level);
+      await addAiRecord("use_ai_hint");
+    } catch (e) {
+      message.error("获取 AI 提示失败，" + (e as Error).message);
+    }
+    setHintLoading(false);
+  };
+
+  const fetchRecommendations = async () => {
+    if (!question.id) {
+      return;
+    }
+    if (recommendation?.questions?.length) {
+      return;
+    }
+    setRecommendLoading(true);
+    try {
+      const res = await recommendQuestionsUsingPost({
+        questionId: question.id,
+      });
+      setRecommendation(res.data);
+    } catch (e) {
+      message.error("获取推荐题目失败，" + (e as Error).message);
+    }
+    setRecommendLoading(false);
+  };
+
+  const markIncorrect = async () => {
+    if (!question.id) {
+      return;
+    }
+    setMarkingIncorrect(true);
+    try {
+      await addQuestionRecordUsingPost({
+        questionId: question.id,
+        questionBankId,
+        actionType: "incorrect",
+        isCorrect: 0,
+      });
+      message.success("已标记为当前薄弱题");
+    } catch (e) {
+      message.error("标记失败，" + (e as Error).message);
+    }
+    setMarkingIncorrect(false);
+  };
 
   return (
     <div className="question-card">
@@ -30,6 +149,73 @@ const QuestionCard = (props: Props) => {
         <TagList tagList={question.tagList} />
         <div style={{ marginBottom: 16 }} />
         <MdViewer value={question.content} />
+      </Card>
+      <div style={{ marginBottom: 16 }} />
+      <Card title="AI 助学">
+        <Space wrap>
+          <Button type="primary" onClick={fetchExplain} loading={explainLoading}>
+            帮我理解
+          </Button>
+          <Button onClick={() => fetchHint(1)} loading={hintLoading}>
+            提示 1
+          </Button>
+          <Button onClick={() => fetchHint(2)} loading={hintLoading}>
+            提示 2
+          </Button>
+          <Button onClick={() => fetchHint(3)} loading={hintLoading}>
+            完整思路
+          </Button>
+          <Button onClick={markIncorrect} loading={markingIncorrect}>
+            标记未掌握
+          </Button>
+          <Button onClick={fetchRecommendations} loading={recommendLoading}>
+            推荐下一题
+          </Button>
+        </Space>
+        <div style={{ marginBottom: 16 }} />
+        {(explainLoading || hintLoading) && <Skeleton active paragraph={{ rows: 4 }} />}
+        {!explainLoading && aiExplain && (
+          <div style={{ marginBottom: aiHint ? 16 : 0 }}>
+            <Paragraph>{aiExplain.plainExplanation}</Paragraph>
+            <Typography.Text strong>核心考点</Typography.Text>
+            <List
+              size="small"
+              dataSource={aiExplain.keyPoints ?? []}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
+            />
+            <Typography.Text strong>常见误区</Typography.Text>
+            <List
+              size="small"
+              dataSource={aiExplain.pitfalls ?? []}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
+            />
+            <Typography.Text strong>模拟追问</Typography.Text>
+            <List
+              size="small"
+              dataSource={aiExplain.followUpQuestions ?? []}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
+            />
+          </div>
+        )}
+        {!hintLoading && aiHint && (
+          <Card
+            type="inner"
+            title={`提示 ${aiHint.level}/${aiHint.totalLevels}`}
+            style={{ marginTop: 12 }}
+          >
+            {aiHint.hintContent}
+          </Card>
+        )}
+        {!recommendLoading && recommendation?.questions?.length ? (
+          <div style={{ marginTop: 16 }}>
+            <Paragraph>{recommendation.recommendationReason}</Paragraph>
+            <QuestionList
+              questionBankId={questionBankId}
+              cardTitle="下一步推荐"
+              questionList={recommendation.questions}
+            />
+          </div>
+        ) : null}
       </Card>
       <div style={{ marginBottom: 16 }} />
       <Card title="推荐答案">
