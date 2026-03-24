@@ -5,7 +5,6 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.yupi.mianshiya.common.ErrorCode;
-import com.yupi.mianshiya.constant.CommonConstant;
 import com.yupi.mianshiya.constant.QuestionRecordActionConstant;
 import com.yupi.mianshiya.exception.ThrowUtils;
 import com.yupi.mianshiya.manager.QwenManager;
@@ -128,20 +127,25 @@ public class AiServiceImpl implements AiService {
         ThrowUtils.throwIf(StringUtils.isBlank(query), ErrorCode.PARAMS_ERROR, "搜索内容不能为空");
         int safePageSize = pageSize == null || pageSize <= 0 ? 6 : Math.min(pageSize, 12);
         QueryIntent queryIntent = buildSearchIntent(query);
-        QuestionQueryRequest questionQueryRequest = new QuestionQueryRequest();
-        questionQueryRequest.setCurrent(1);
-        questionQueryRequest.setPageSize(safePageSize);
-        questionQueryRequest.setSearchText(queryIntent.getRewrittenQuery());
-        if (CollUtil.isNotEmpty(queryIntent.getTags())) {
-            questionQueryRequest.setTags(queryIntent.getTags());
+        List<QuestionVO> questionVOList = searchQuestionsByIntent(queryIntent, safePageSize);
+        String reason = queryIntent.getReason();
+        if (CollUtil.isEmpty(questionVOList)) {
+            QueryIntent fallbackIntent = new QueryIntent();
+            fallbackIntent.setRewrittenQuery(query.trim());
+            fallbackIntent.setReason("严格匹配没有命中结果，已自动退回到宽松关键词搜索。");
+            fallbackIntent.setTags(new ArrayList<>());
+            fallbackIntent.setSource("fallback");
+            questionVOList = searchQuestionsByIntent(fallbackIntent, safePageSize);
+            reason = fallbackIntent.getReason();
         }
-        questionQueryRequest.setSortField("createTime");
-        questionQueryRequest.setSortOrder(CommonConstant.SORT_ORDER_DESC);
-        List<QuestionVO> questionVOList = questionService.getQuestionVOPage(
-                questionService.listQuestionByPage(questionQueryRequest), null).getRecords();
+        if (CollUtil.isEmpty(questionVOList)) {
+            questionVOList = questionService.getQuestionVOPage(
+                    questionService.listQuestionByPage(buildLatestQuestionRequest(safePageSize)), null).getRecords();
+            reason = "当前没有命中强相关题目，已为你展示最新的可练习题目。";
+        }
         AiQuestionSearchVO searchVO = new AiQuestionSearchVO();
         searchVO.setRewrittenQuery(queryIntent.getRewrittenQuery());
-        searchVO.setReason(queryIntent.getReason());
+        searchVO.setReason(reason);
         searchVO.setTags(queryIntent.getTags());
         searchVO.setQuestions(questionVOList);
         searchVO.setSource(queryIntent.getSource());
@@ -476,6 +480,29 @@ public class AiServiceImpl implements AiService {
         queryIntent.setTags(extractTagsFromQuery(query));
         queryIntent.setSource("local");
         return queryIntent;
+    }
+
+    private List<QuestionVO> searchQuestionsByIntent(QueryIntent queryIntent, int pageSize) {
+        QuestionQueryRequest questionQueryRequest = new QuestionQueryRequest();
+        questionQueryRequest.setCurrent(1);
+        questionQueryRequest.setPageSize(pageSize);
+        questionQueryRequest.setSearchText(queryIntent.getRewrittenQuery());
+        if (CollUtil.isNotEmpty(queryIntent.getTags())) {
+            questionQueryRequest.setTags(queryIntent.getTags());
+        }
+        questionQueryRequest.setSortField("createTime");
+        questionQueryRequest.setSortOrder("descend");
+        return questionService.getQuestionVOPage(questionService.listQuestionByPage(questionQueryRequest), null)
+                .getRecords();
+    }
+
+    private QuestionQueryRequest buildLatestQuestionRequest(int pageSize) {
+        QuestionQueryRequest questionQueryRequest = new QuestionQueryRequest();
+        questionQueryRequest.setCurrent(1);
+        questionQueryRequest.setPageSize(pageSize);
+        questionQueryRequest.setSortField("createTime");
+        questionQueryRequest.setSortOrder("descend");
+        return questionQueryRequest;
     }
 
     private List<String> extractTagsFromQuery(String query) {

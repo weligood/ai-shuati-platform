@@ -33,13 +33,14 @@ export default async function QuestionsPage({ searchParams }) {
   return (
     <div id="questionsPage" className="max-width-content">
       <Title level={3}>题目大全</Title>
-      <AiSearchPanel />
+      <AiSearchPanel initialQuery={searchText || ""} />
       <QuestionTable
         defaultQuestionList={questionList}
         defaultTotal={total}
         defaultSearchParams={{
-          title: searchText,
+          searchText,
         }}
+        hideSearch
       />
     </div>
   );

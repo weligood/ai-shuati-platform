@@ -2,7 +2,7 @@
 import { searchQuestionVoByPageUsingPost } from "@/api/questionController";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import TagList from "@/components/TagList";
 import { TablePaginationConfig } from "antd";
 import Link from "next/link";
@@ -14,6 +14,8 @@ interface Props {
   defaultTotal?: number;
   // 默认搜索条件
   defaultSearchParams?: API.QuestionQueryRequest;
+  // 是否隐藏内置搜索栏
+  hideSearch?: boolean;
 }
 
 /**
@@ -22,7 +24,12 @@ interface Props {
  * @constructor
  */
 const QuestionTable: React.FC = (props: Props) => {
-  const { defaultQuestionList, defaultTotal, defaultSearchParams = {} } = props;
+  const {
+    defaultQuestionList,
+    defaultTotal,
+    defaultSearchParams = {},
+    hideSearch = false,
+  } = props;
   const actionRef = useRef<ActionType>();
   // 题目列表
   const [questionList, setQuestionList] = useState<API.QuestionVO[]>(
@@ -32,6 +39,12 @@ const QuestionTable: React.FC = (props: Props) => {
   const [total, setTotal] = useState<number>(defaultTotal || 0);
   // 用于判断是否首次加载
   const [init, setInit] = useState<boolean>(true);
+
+  useEffect(() => {
+    setQuestionList(defaultQuestionList || []);
+    setTotal(defaultTotal || 0);
+    setInit(true);
+  }, [defaultQuestionList, defaultTotal, defaultSearchParams]);
 
   /**
    * 表格列配置
@@ -70,9 +83,13 @@ const QuestionTable: React.FC = (props: Props) => {
       <ProTable<API.QuestionVO>
         actionRef={actionRef}
         size="large"
-        search={{
-          labelWidth: "auto",
-        }}
+        search={
+          hideSearch
+            ? false
+            : {
+                labelWidth: "auto",
+              }
+        }
         form={{
           initialValues: defaultSearchParams,
         }}

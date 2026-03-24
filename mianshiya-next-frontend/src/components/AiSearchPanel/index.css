@@ -1,0 +1,72 @@
+#aiSearchPanel {
+  margin-bottom: 24px;
+  border-radius: 20px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top left, rgba(255, 220, 120, 0.22), transparent 35%),
+    linear-gradient(135deg, #fff8e8 0%, #ffffff 45%, #f7fbff 100%);
+}
+
+#aiSearchPanel .hero-copy {
+  max-width: 720px;
+}
+
+#aiSearchPanel .hero-input {
+  width: 100%;
+  margin-top: 12px;
+}
+
+#aiSearchPanel .hero-actions {
+  margin-top: 12px;
+}
+
+#aiSearchPanel .hero-mode-list {
+  display: flex;
+  align-items: center;
+}
+
+#aiSearchPanel .hero-mode-button.ant-btn {
+  min-width: 128px;
+  height: 44px;
+  border-radius: 14px;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+#aiSearchPanel .hero-mode-button.ant-btn-default {
+  border-color: #d9e2f2;
+  background: #fff;
+  color: #24415f;
+}
+
+#aiSearchPanel .hero-mode-button.ant-btn-default:hover,
+#aiSearchPanel .hero-mode-button.ant-btn-default:focus {
+  border-color: #91caff;
+  background: #f7fbff;
+  color: #1677ff;
+}
+
+#aiSearchPanel .hero-mode-button.ant-btn-primary,
+#aiSearchPanel .hero-mode-button.ant-btn-primary:hover,
+#aiSearchPanel .hero-mode-button.ant-btn-primary:focus {
+  border-color: #1677ff;
+  background: linear-gradient(135deg, #1677ff, #4096ff);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(22, 119, 255, 0.18);
+}
+
+#aiSearchPanel .hero-meta {
+  margin-top: 10px;
+}
+
+#aiSearchPanel .result-card {
+  margin-top: 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+@media (max-width: 768px) {
+  #aiSearchPanel .hero-actions {
+    width: 100%;
+  }
+}

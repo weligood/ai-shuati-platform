@@ -6,7 +6,8 @@ const DEV_BASE_URL = "http://localhost:8101";
 const PROD_BASE_URL = "http://xx.xx.xx.xx";
 const myAxios = axios.create({
   baseURL: DEV_BASE_URL,
-  timeout: 10000,
+  // AI 讲解和推荐首次生成可能稍慢，给接口更充足的超时时间
+  timeout: 30000,
   withCredentials: true,
 });
 

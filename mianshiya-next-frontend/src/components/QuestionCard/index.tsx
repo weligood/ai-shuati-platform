@@ -1,11 +1,22 @@
 "use client";
-import { Button, Card, List, Skeleton, Space, Typography, message } from "antd";
+import {
+  Button,
+  Card,
+  List,
+  Skeleton,
+  Typography,
+  message,
+} from "antd";
 import Title from "antd/es/typography/Title";
 import Paragraph from "antd/es/typography/Paragraph";
 import TagList from "@/components/TagList";
 import MdViewer from "@/components/MdViewer";
 import useAddUserSignInRecord from "@/hooks/useAddUserSignInRecord";
 import useAddQuestionRecord from "@/hooks/useAddQuestionRecord";
+import {
+  LeftOutlined,
+  RightOutlined,
+} from "@ant-design/icons";
 import {
   recommendQuestionsUsingPost,
   getQuestionExplainUsingPost,
@@ -20,6 +31,8 @@ interface Props {
   question: API.QuestionVO;
   questionBankId?: number;
 }
+
+type AiViewMode = "explain" | "hint" | "recommend" | null;
 
 /**
  * 题目卡片
@@ -38,6 +51,7 @@ const QuestionCard = (props: Props) => {
   const [aiHint, setAiHint] = useState<API.AiQuestionHintVO>();
   const [recommendation, setRecommendation] =
     useState<API.AiQuestionRecommendVO>();
+  const [activeAiView, setActiveAiView] = useState<AiViewMode>(null);
   const [currentHintLevel, setCurrentHintLevel] = useState<number>(0);
   const [explainLoading, setExplainLoading] = useState<boolean>(false);
   const [hintLoading, setHintLoading] = useState<boolean>(false);
@@ -65,6 +79,7 @@ const QuestionCard = (props: Props) => {
       return;
     }
     if (aiExplain) {
+      setActiveAiView("explain");
       return;
     }
     setExplainLoading(true);
@@ -73,6 +88,7 @@ const QuestionCard = (props: Props) => {
         questionId: question.id,
       });
       setAiExplain(res.data);
+      setActiveAiView("explain");
       await addAiRecord("use_ai_explain");
     } catch (e) {
       message.error("获取 AI 讲解失败，" + (e as Error).message);
@@ -85,6 +101,7 @@ const QuestionCard = (props: Props) => {
       return;
     }
     if (aiHint && currentHintLevel === level) {
+      setActiveAiView("hint");
       return;
     }
     setHintLoading(true);
@@ -95,6 +112,7 @@ const QuestionCard = (props: Props) => {
       });
       setAiHint(res.data);
       setCurrentHintLevel(level);
+      setActiveAiView("hint");
       await addAiRecord("use_ai_hint");
     } catch (e) {
       message.error("获取 AI 提示失败，" + (e as Error).message);
@@ -102,11 +120,28 @@ const QuestionCard = (props: Props) => {
     setHintLoading(false);
   };
 
+  const openHint = async () => {
+    const nextLevel = currentHintLevel > 0 ? currentHintLevel : 1;
+    await fetchHint(nextLevel);
+  };
+
+  const switchHint = async (delta: number) => {
+    if (!aiHint?.totalLevels) {
+      return;
+    }
+    const nextLevel = currentHintLevel + delta;
+    if (nextLevel < 1 || nextLevel > aiHint.totalLevels) {
+      return;
+    }
+    await fetchHint(nextLevel);
+  };
+
   const fetchRecommendations = async () => {
     if (!question.id) {
       return;
     }
     if (recommendation?.questions?.length) {
+      setActiveAiView("recommend");
       return;
     }
     setRecommendLoading(true);
@@ -115,6 +150,7 @@ const QuestionCard = (props: Props) => {
         questionId: question.id,
       });
       setRecommendation(res.data);
+      setActiveAiView("recommend");
     } catch (e) {
       message.error("获取推荐题目失败，" + (e as Error).message);
     }
@@ -152,30 +188,50 @@ const QuestionCard = (props: Props) => {
       </Card>
       <div style={{ marginBottom: 16 }} />
       <Card title="AI 助学">
-        <Space wrap>
-          <Button type="primary" onClick={fetchExplain} loading={explainLoading}>
+        <div className="ai-mode-list">
+          <Button
+            type="default"
+            className={`ai-mode-button ${
+              activeAiView === "explain" ? "ai-mode-button-active" : ""
+            }`}
+            onClick={fetchExplain}
+            loading={explainLoading}
+          >
             帮我理解
           </Button>
-          <Button onClick={() => fetchHint(1)} loading={hintLoading}>
-            提示 1
+          <Button
+            type="default"
+            className={`ai-mode-button ${
+              activeAiView === "hint" ? "ai-mode-button-active" : ""
+            }`}
+            onClick={openHint}
+            loading={hintLoading}
+          >
+            查看提示
           </Button>
-          <Button onClick={() => fetchHint(2)} loading={hintLoading}>
-            提示 2
-          </Button>
-          <Button onClick={() => fetchHint(3)} loading={hintLoading}>
-            完整思路
-          </Button>
-          <Button onClick={markIncorrect} loading={markingIncorrect}>
+          <Button
+            type="default"
+            className="ai-mode-button"
+            onClick={markIncorrect}
+            loading={markingIncorrect}
+          >
             标记未掌握
           </Button>
-          <Button onClick={fetchRecommendations} loading={recommendLoading}>
+          <Button
+            type="default"
+            className={`ai-mode-button ${
+              activeAiView === "recommend" ? "ai-mode-button-active" : ""
+            }`}
+            onClick={fetchRecommendations}
+            loading={recommendLoading}
+          >
             推荐下一题
           </Button>
-        </Space>
+        </div>
         <div style={{ marginBottom: 16 }} />
         {(explainLoading || hintLoading) && <Skeleton active paragraph={{ rows: 4 }} />}
-        {!explainLoading && aiExplain && (
-          <div style={{ marginBottom: aiHint ? 16 : 0 }}>
+        {!explainLoading && activeAiView === "explain" && aiExplain && (
+          <div>
             <Paragraph>{aiExplain.plainExplanation}</Paragraph>
             <Typography.Text strong>核心考点</Typography.Text>
             <List
@@ -197,16 +253,44 @@ const QuestionCard = (props: Props) => {
             />
           </div>
         )}
-        {!hintLoading && aiHint && (
+        {!hintLoading && activeAiView === "hint" && aiHint && (
           <Card
             type="inner"
-            title={`提示 ${aiHint.level}/${aiHint.totalLevels}`}
-            style={{ marginTop: 12 }}
+            title={
+              <div className="hint-header">
+                <Typography.Text strong>{`提示 ${aiHint.level}/${aiHint.totalLevels}`}</Typography.Text>
+                <div className="hint-nav">
+                  <Button
+                    type="text"
+                    shape="circle"
+                    className="hint-nav-button"
+                    icon={<LeftOutlined />}
+                    disabled={!aiHint.level || aiHint.level <= 1}
+                    onClick={() => switchHint(-1)}
+                  />
+                  <Button
+                    type="text"
+                    shape="circle"
+                    className="hint-nav-button"
+                    icon={<RightOutlined />}
+                    disabled={
+                      !aiHint.level ||
+                      !aiHint.totalLevels ||
+                      aiHint.level >= aiHint.totalLevels
+                    }
+                    onClick={() => switchHint(1)}
+                  />
+                </div>
+              </div>
+            }
+            className="hint-panel"
           >
             {aiHint.hintContent}
           </Card>
         )}
-        {!recommendLoading && recommendation?.questions?.length ? (
+        {!recommendLoading &&
+        activeAiView === "recommend" &&
+        recommendation?.questions?.length ? (
           <div style={{ marginTop: 16 }}>
             <Paragraph>{recommendation.recommendationReason}</Paragraph>
             <QuestionList

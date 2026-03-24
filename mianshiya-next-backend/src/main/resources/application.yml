@@ -6,7 +6,7 @@ spring:
     name: mianshiya-next-backend
   # 默认 dev 环境
   profiles:
-    active: dev
+    active: local
   # 支持 swagger3
   mvc:
     pathmatch:
@@ -196,7 +196,7 @@ ai:
   qwenModel: qwen-plus
   qwenEndpoint: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
   temperature: 0.2
-  timeoutMillis: 15000
+  timeoutMillis: 30000
 # 接口文档配置
 knife4j:
   enable: true
