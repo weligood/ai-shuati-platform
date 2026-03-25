@@ -1,6 +1,4 @@
 # 数据库初始化
-# @author <a href="https://github.com/liyupi">程序员鱼皮</a>
-# @from <a href="https://yupi.icu">编程导航知识星球</a>
 
 -- 创建库
 create database if not exists mianshiya;
@@ -123,3 +121,4 @@ create table if not exists user_ai_report
     updateTime          datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
     unique key uk_user_period (userId, reportType, startDate, endDate)
 ) comment '用户 AI 学习报告' collate = utf8mb4_unicode_ci;
+

@@ -4,22 +4,22 @@ use mianshiya;
 -- 用户表初始数据（密码是 12345678）
 INSERT INTO user (id, userAccount, userPassword, unionId, mpOpenId, userName, userAvatar, userProfile, userRole)
 VALUES (1, 'user1', 'b0dd3697a192885d7c055db46155b26a', 'unionId1', 'mpOpenId1', 'user1',
-        'https://www.code-nav.cn/logo.png', '喜欢编程的小白', 'user'),
+        'https://github.com/weligood.png', '喜欢编程的小白', 'user'),
        (2, 'user2', 'b0dd3697a192885d7c055db46155b26a', 'unionId2', 'mpOpenId2', 'user2',
-        'https://www.code-nav.cn/logo.png', '全栈开发工程师', 'user'),
+        'https://github.com/weligood.png', '全栈开发工程师', 'user'),
        (3, 'user3', 'b0dd3697a192885d7c055db46155b26a', 'unionId3', 'mpOpenId3', 'user3',
-        'https://www.code-nav.cn/logo.png', '前端爱好者', 'user'),
+        'https://github.com/weligood.png', '前端爱好者', 'user'),
        (4, 'user4', 'b0dd3697a192885d7c055db46155b26a', 'unionId4', 'mpOpenId4', 'user4',
-        'https://www.code-nav.cn/logo.png', '后端开发工程师', 'user'),
-       (5, 'yupi', 'b0dd3697a192885d7c055db46155b26a', NULL, NULL, '程序员鱼皮', 'https://www.code-nav.cn/logo.png',
+        'https://github.com/weligood.png', '后端开发工程师', 'user'),
+       (5, 'weligood', 'b0dd3697a192885d7c055db46155b26a', NULL, NULL, 'weligood', 'https://github.com/weligood.png',
         '系统管理员', 'admin');
 
 -- 题库表初始数据
 INSERT INTO question_bank (title, description, picture, userId)
 VALUES ('JavaScript 基础', '包含 JavaScript 的基础知识题目',
-        'https://pic.code-nav.cn/mianshiya/question_bank_picture/1777886594896760834/JldkWf9w_JavaScript.png', 1),
+        'https://github.com/weligood.png', 1),
        ('CSS 样式', '包含 CSS 相关的样式问题',
-        'https://pic.code-nav.cn/mianshiya/question_bank_picture/1777886594896760834/QatnFmEN_CSS.png', 2),
+        'https://github.com/weligood.png', 2),
        ('HTML 基础', 'HTML 标记语言的基本知识', 'https://www.mianshiya.com/logo.png', 3),
        ('前端框架', 'React, Vue, Angular 等框架相关的题目', 'https://www.mianshiya.com/logo.png', 1),
        ('算法与数据结构', '数据结构和算法题目', 'https://www.mianshiya.com/logo.png', 2),
@@ -112,4 +112,5 @@ VALUES (1, 1, 1),
        (9, 17, 3),
        (10, 12, 1),
        (10, 20, 1);
+
 

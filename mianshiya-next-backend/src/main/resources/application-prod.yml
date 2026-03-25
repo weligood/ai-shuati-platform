@@ -1,6 +1,4 @@
 # 线上配置文件
-# @author <a href="https://github.com/liyupi">程序员鱼皮</a>
-# @from <a href="https://code-nav.cn">编程导航</a>
 server:
   port: 8101
 spring:
@@ -29,3 +27,4 @@ knife4j:
     enable: true
     username: root
     password: 123456
+

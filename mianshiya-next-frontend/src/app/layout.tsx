@@ -32,7 +32,7 @@ const InitLayout: React.FC<
       //   const testUser = {
       //     userName: "测试登录",
       //     id: 1,
-      //     userAvatar: "https://www.code-nav.cn/logo.png",
+      //     userAvatar: "https://github.com/weligood.png",
       //     userRole: ACCESS_ENUM.ADMIN
       //   };
       //   dispatch(setLoginUser(testUser));
@@ -68,3 +68,4 @@ export default function RootLayout({
     </html>
   );
 }
+
