@@ -4,6 +4,9 @@ import com.yupi.mianshiya.model.vo.AiQuestionExplainVO;
 import com.yupi.mianshiya.model.vo.AiQuestionHintVO;
 import com.yupi.mianshiya.model.vo.AiQuestionRecommendVO;
 import com.yupi.mianshiya.model.vo.AiQuestionSearchVO;
+import com.yupi.mianshiya.model.vo.AiAdminBankDraftVO;
+import com.yupi.mianshiya.model.vo.AiAdminQuestionBatchDraftVO;
+import com.yupi.mianshiya.model.vo.AiAdminQuestionDraftVO;
 import com.yupi.mianshiya.model.vo.UserAiReportVO;
 
 /**
@@ -34,6 +37,40 @@ public interface AiService {
     AiQuestionSearchVO aiSearchQuestions(String query, Integer pageSize);
 
     UserAiReportVO getUserAiReport(long userId, String reportType);
+
+    /**
+     * 管理员生成题目草稿
+     *
+     * @param topic         主题
+     * @param currentTitle  当前标题
+     * @param currentContent 当前内容
+     * @param currentAnswer 当前答案
+     * @param currentTags   当前标签
+     * @return 题目草稿
+     */
+    AiAdminQuestionDraftVO generateAdminQuestionDraft(String topic, String currentTitle, String currentContent,
+                                                      String currentAnswer, java.util.List<String> currentTags);
+
+    /**
+     * 管理员对话式批量生成题目草稿
+     *
+     * @param prompt  当前输入
+     * @param history 历史对话
+     * @param count   生成数量
+     * @return 批量草稿
+     */
+    AiAdminQuestionBatchDraftVO generateAdminQuestionBatchDraft(String prompt, java.util.List<String> history,
+                                                                Integer count);
+
+    /**
+     * 管理员生成题库草稿
+     *
+     * @param topic             主题
+     * @param currentTitle      当前标题
+     * @param currentDescription 当前描述
+     * @return 题库草稿
+     */
+    AiAdminBankDraftVO generateAdminBankDraft(String topic, String currentTitle, String currentDescription);
 
     /**
      * 清理题目 AI 缓存

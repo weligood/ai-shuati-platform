@@ -75,3 +75,51 @@ export async function getUserAiReportUsingGet(
     ...(options || {}),
   });
 }
+
+/** generateAdminQuestionDraft POST /api/ai/admin/question/draft */
+export async function generateAdminQuestionDraftUsingPost(
+  body: API.AiAdminQuestionDraftRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseAiAdminQuestionDraftVO_>('/api/ai/admin/question/draft', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** generateAdminQuestionBatchDraft POST /api/ai/admin/question/draft/batch */
+export async function generateAdminQuestionBatchDraftUsingPost(
+  body: API.AiAdminQuestionBatchDraftRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseAiAdminQuestionBatchDraftVO_>(
+    '/api/ai/admin/question/draft/batch',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: body,
+      ...(options || {}),
+    },
+  );
+}
+
+/** generateAdminBankDraft POST /api/ai/admin/bank/draft */
+export async function generateAdminBankDraftUsingPost(
+  body: API.AiAdminBankDraftRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponseAiAdminBankDraftVO_>('/api/ai/admin/bank/draft', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}

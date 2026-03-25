@@ -1,4 +1,49 @@
 declare namespace API {
+  type AiAdminBankDraftRequest = {
+    currentDescription?: string;
+    currentTitle?: string;
+    topic?: string;
+  };
+
+  type AiAdminBankDraftVO = {
+    description?: string;
+    operationTips?: string[];
+    picture?: string;
+    source?: string;
+    suggestedQuestionTitles?: string[];
+    summary?: string;
+    title?: string;
+  };
+
+  type AiAdminQuestionDraftRequest = {
+    currentAnswer?: string;
+    currentContent?: string;
+    currentTags?: string[];
+    currentTitle?: string;
+    topic?: string;
+  };
+
+  type AiAdminQuestionBatchDraftRequest = {
+    count?: number;
+    history?: string[];
+    prompt?: string;
+  };
+
+  type AiAdminQuestionBatchDraftVO = {
+    assistantMessage?: string;
+    questionDrafts?: AiAdminQuestionDraftVO[];
+    source?: string;
+  };
+
+  type AiAdminQuestionDraftVO = {
+    answer?: string;
+    content?: string;
+    source?: string;
+    summary?: string;
+    tags?: string[];
+    title?: string;
+  };
+
   type AiQuestionExplainRequest = {
     questionId?: number;
   };
@@ -57,6 +102,24 @@ declare namespace API {
   type BaseResponseAiQuestionExplainVO_ = {
     code?: number;
     data?: AiQuestionExplainVO;
+    message?: string;
+  };
+
+  type BaseResponseAiAdminBankDraftVO_ = {
+    code?: number;
+    data?: AiAdminBankDraftVO;
+    message?: string;
+  };
+
+  type BaseResponseAiAdminQuestionBatchDraftVO_ = {
+    code?: number;
+    data?: AiAdminQuestionBatchDraftVO;
+    message?: string;
+  };
+
+  type BaseResponseAiAdminQuestionDraftVO_ = {
+    code?: number;
+    data?: AiAdminQuestionDraftVO;
     message?: string;
   };
 

@@ -1,7 +1,8 @@
 import { addQuestionBankUsingPost } from '@/api/questionBankController';
-import { ProColumns, ProTable } from '@ant-design/pro-components';
+import AiDraftPanel from "./AiDraftPanel";
+import { ProColumns, ProFormInstance, ProTable } from '@ant-design/pro-components';
 import { message, Modal } from 'antd';
-import React from 'react';
+import React, { useRef } from 'react';
 
 interface Props {
   visible: boolean;
@@ -35,19 +36,31 @@ const handleAdd = async (fields: API.QuestionBankAddRequest) => {
  */
 const CreateModal: React.FC<Props> = (props) => {
   const { visible, columns, onSubmit, onCancel } = props;
+  const formRef = useRef<ProFormInstance<API.QuestionBankAddRequest>>();
 
   return (
     <Modal
       destroyOnClose
-      title={'创建'}
+      title={'创建题库'}
       open={visible}
       footer={null}
+      width={920}
       onCancel={() => {
         onCancel?.();
       }}
     >
+      <AiDraftPanel
+        onApply={(draft) => {
+          formRef.current?.setFieldsValue({
+            title: draft.title,
+            description: draft.description,
+            picture: draft.picture,
+          });
+        }}
+      />
       <ProTable
         type="form"
+        formRef={formRef}
         columns={columns}
         onSubmit={async (values: API.QuestionBankAddRequest) => {
           const success = await handleAdd(values);

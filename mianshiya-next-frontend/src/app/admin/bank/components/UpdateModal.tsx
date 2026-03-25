@@ -1,7 +1,8 @@
 import { updateQuestionBankUsingPost } from '@/api/questionBankController';
-import { ProColumns, ProTable } from '@ant-design/pro-components';
+import AiDraftPanel from "./AiDraftPanel";
+import { ProColumns, ProFormInstance, ProTable } from '@ant-design/pro-components';
 import { message, Modal } from 'antd';
-import React from 'react';
+import React, { useRef } from 'react';
 
 interface Props {
   oldData?: API.QuestionBank;
@@ -37,6 +38,7 @@ const handleUpdate = async (fields: API.QuestionBankUpdateRequest) => {
  */
 const UpdateModal: React.FC<Props> = (props) => {
   const { oldData, visible, columns, onSubmit, onCancel } = props;
+  const formRef = useRef<ProFormInstance<API.QuestionBankUpdateRequest>>();
 
   if (!oldData) {
     return <></>;
@@ -45,15 +47,27 @@ const UpdateModal: React.FC<Props> = (props) => {
   return (
     <Modal
       destroyOnClose
-      title={'更新'}
+      title={'更新题库'}
       open={visible}
       footer={null}
+      width={920}
       onCancel={() => {
         onCancel?.();
       }}
     >
+      <AiDraftPanel
+        currentData={oldData}
+        onApply={(draft) => {
+          formRef.current?.setFieldsValue({
+            title: draft.title,
+            description: draft.description,
+            picture: draft.picture,
+          });
+        }}
+      />
       <ProTable
         type="form"
+        formRef={formRef}
         columns={columns}
         form={{
           initialValues: oldData,

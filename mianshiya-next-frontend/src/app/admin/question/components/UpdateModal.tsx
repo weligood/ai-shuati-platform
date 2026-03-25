@@ -1,7 +1,8 @@
 import { updateQuestionUsingPost } from "@/api/questionController";
-import { ProColumns, ProTable } from "@ant-design/pro-components";
+import AiDraftPanel from "./AiDraftPanel";
+import { ProColumns, ProFormInstance, ProTable } from "@ant-design/pro-components";
 import { message, Modal } from "antd";
-import React from "react";
+import React, { useRef } from "react";
 
 interface Props {
   oldData?: API.Question;
@@ -37,6 +38,7 @@ const handleUpdate = async (fields: API.QuestionUpdateRequest) => {
  */
 const UpdateModal: React.FC<Props> = (props) => {
   const { oldData, visible, columns, onSubmit, onCancel } = props;
+  const formRef = useRef<ProFormInstance<API.QuestionUpdateRequest>>();
 
   if (!oldData?.id) {
     return <></>;
@@ -51,15 +53,28 @@ const UpdateModal: React.FC<Props> = (props) => {
   return (
     <Modal
       destroyOnClose
-      title={"更新"}
+      title={"更新题目"}
       open={visible}
       footer={null}
+      width={920}
       onCancel={() => {
         onCancel?.();
       }}
     >
+      <AiDraftPanel
+        currentData={oldData}
+        onApply={(draft) => {
+          formRef.current?.setFieldsValue({
+            title: draft.title,
+            content: draft.content,
+            answer: draft.answer,
+            tags: draft.tags,
+          });
+        }}
+      />
       <ProTable
         type="form"
+        formRef={formRef}
         columns={columns}
         form={{
           initialValues: initValues,

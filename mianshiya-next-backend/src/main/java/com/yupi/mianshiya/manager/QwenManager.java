@@ -2,6 +2,7 @@ package com.yupi.mianshiya.manager;
 
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpException;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -43,40 +44,49 @@ public class QwenManager {
         if (!isAvailable()) {
             return null;
         }
-        JSONObject requestBody = new JSONObject();
-        requestBody.put("model", aiConfig.getQwenModel());
-        requestBody.put("temperature", aiConfig.getTemperature());
-        JSONArray messages = new JSONArray();
-        JSONObject systemMessage = new JSONObject();
-        systemMessage.put("role", "system");
-        systemMessage.put("content", systemPrompt);
-        messages.add(systemMessage);
-        JSONObject userMessage = new JSONObject();
-        userMessage.put("role", "user");
-        userMessage.put("content", userPrompt);
-        messages.add(userMessage);
-        requestBody.put("messages", messages);
-        HttpResponse response = HttpRequest.post(aiConfig.getQwenEndpoint())
-                .header("Authorization", "Bearer " + aiConfig.getQwenApiKey())
-                .header("Content-Type", "application/json;charset=UTF-8")
-                .timeout(aiConfig.getTimeoutMillis())
-                .body(requestBody.toString())
-                .execute();
-        if (!response.isOk()) {
-            log.warn("Qwen request failed, status={}, body={}", response.getStatus(), response.body());
+        try {
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("model", aiConfig.getQwenModel());
+            requestBody.put("temperature", aiConfig.getTemperature());
+            JSONArray messages = new JSONArray();
+            JSONObject systemMessage = new JSONObject();
+            systemMessage.put("role", "system");
+            systemMessage.put("content", systemPrompt);
+            messages.add(systemMessage);
+            JSONObject userMessage = new JSONObject();
+            userMessage.put("role", "user");
+            userMessage.put("content", userPrompt);
+            messages.add(userMessage);
+            requestBody.put("messages", messages);
+            try (HttpResponse response = HttpRequest.post(aiConfig.getQwenEndpoint())
+                    .header("Authorization", "Bearer " + aiConfig.getQwenApiKey())
+                    .header("Content-Type", "application/json;charset=UTF-8")
+                    .timeout(aiConfig.getTimeoutMillis())
+                    .body(requestBody.toString())
+                    .execute()) {
+                if (!response.isOk()) {
+                    log.warn("Qwen request failed, status={}, body={}", response.getStatus(), response.body());
+                    return null;
+                }
+                JSONObject responseJson = JSONUtil.parseObj(response.body());
+                JSONArray choices = responseJson.getJSONArray("choices");
+                if (choices == null || choices.isEmpty()) {
+                    return null;
+                }
+                JSONObject firstChoice = choices.getJSONObject(0);
+                JSONObject message = firstChoice.getJSONObject("message");
+                if (message == null) {
+                    return null;
+                }
+                return message.getStr("content");
+            }
+        } catch (HttpException e) {
+            log.warn("Qwen request timeout or network error: {}", e.getMessage());
+            return null;
+        } catch (Exception e) {
+            log.warn("Qwen request unexpected error", e);
             return null;
         }
-        JSONObject responseJson = JSONUtil.parseObj(response.body());
-        JSONArray choices = responseJson.getJSONArray("choices");
-        if (choices == null || choices.isEmpty()) {
-            return null;
-        }
-        JSONObject firstChoice = choices.getJSONObject(0);
-        JSONObject message = firstChoice.getJSONObject("message");
-        if (message == null) {
-            return null;
-        }
-        return message.getStr("content");
     }
 
     /**

@@ -1,12 +1,13 @@
 "use client";
 import CreateModal from "./components/CreateModal";
 import UpdateModal from "./components/UpdateModal";
+import AiBatchCreateModal from "./components/AiBatchCreateModal";
 import {
   batchDeleteQuestionsUsingPost,
   deleteQuestionUsingPost,
   listQuestionByPageUsingPost,
 } from "@/api/questionController";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, RobotOutlined } from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { PageContainer, ProTable } from "@ant-design/pro-components";
 import { Button, message, Popconfirm, Space, Table, Typography } from "antd";
@@ -30,6 +31,9 @@ const QuestionAdminPage: React.FC = () => {
   const [updateModalVisible, setUpdateModalVisible] = useState<boolean>(false);
   // 是否显示更新所属题库窗口
   const [updateBankModalVisible, setUpdateBankModalVisible] =
+    useState<boolean>(false);
+  // 是否显示 AI 批量出题窗口
+  const [aiBatchCreateModalVisible, setAiBatchCreateModalVisible] =
     useState<boolean>(false);
   // 是否显示批量向题库添加题目弹窗
   const [
@@ -293,6 +297,14 @@ const QuestionAdminPage: React.FC = () => {
         }}
         toolBarRender={() => [
           <Button
+            key="aiBatch"
+            onClick={() => {
+              setAiBatchCreateModalVisible(true);
+            }}
+          >
+            <RobotOutlined /> AI 对话批量出题
+          </Button>,
+          <Button
             type="primary"
             key="primary"
             onClick={() => {
@@ -330,6 +342,16 @@ const QuestionAdminPage: React.FC = () => {
         }}
         onCancel={() => {
           setCreateModalVisible(false);
+        }}
+      />
+      <AiBatchCreateModal
+        visible={aiBatchCreateModalVisible}
+        onSubmit={() => {
+          setAiBatchCreateModalVisible(false);
+          actionRef.current?.reload();
+        }}
+        onCancel={() => {
+          setAiBatchCreateModalVisible(false);
         }}
       />
       <UpdateModal

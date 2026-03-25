@@ -4,11 +4,17 @@ import com.yupi.mianshiya.common.BaseResponse;
 import com.yupi.mianshiya.common.ErrorCode;
 import com.yupi.mianshiya.common.ResultUtils;
 import com.yupi.mianshiya.exception.BusinessException;
+import com.yupi.mianshiya.model.dto.ai.AiAdminBankDraftRequest;
+import com.yupi.mianshiya.model.dto.ai.AiAdminQuestionBatchDraftRequest;
+import com.yupi.mianshiya.model.dto.ai.AiAdminQuestionDraftRequest;
 import com.yupi.mianshiya.model.dto.ai.AiQuestionExplainRequest;
 import com.yupi.mianshiya.model.dto.ai.AiQuestionHintRequest;
 import com.yupi.mianshiya.model.dto.ai.AiQuestionRecommendRequest;
 import com.yupi.mianshiya.model.dto.ai.AiQuestionSearchRequest;
 import com.yupi.mianshiya.model.entity.User;
+import com.yupi.mianshiya.model.vo.AiAdminBankDraftVO;
+import com.yupi.mianshiya.model.vo.AiAdminQuestionBatchDraftVO;
+import com.yupi.mianshiya.model.vo.AiAdminQuestionDraftVO;
 import com.yupi.mianshiya.model.vo.AiQuestionExplainVO;
 import com.yupi.mianshiya.model.vo.AiQuestionHintVO;
 import com.yupi.mianshiya.model.vo.AiQuestionRecommendVO;
@@ -77,5 +83,58 @@ public class AiController {
     public BaseResponse<UserAiReportVO> getUserAiReport(String reportType, HttpServletRequest request) {
         User loginUser = userService.getLoginUser(request);
         return ResultUtils.success(aiService.getUserAiReport(loginUser.getId(), reportType));
+    }
+
+    @PostMapping("/admin/question/draft")
+    public BaseResponse<AiAdminQuestionDraftVO> generateAdminQuestionDraft(
+            @RequestBody(required = false) AiAdminQuestionDraftRequest draftRequest,
+            HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        if (!userService.isAdmin(loginUser)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        if (draftRequest == null) {
+            draftRequest = new AiAdminQuestionDraftRequest();
+        }
+        return ResultUtils.success(aiService.generateAdminQuestionDraft(
+                draftRequest.getTopic(),
+                draftRequest.getCurrentTitle(),
+                draftRequest.getCurrentContent(),
+                draftRequest.getCurrentAnswer(),
+                draftRequest.getCurrentTags()));
+    }
+
+    @PostMapping("/admin/question/draft/batch")
+    public BaseResponse<AiAdminQuestionBatchDraftVO> generateAdminQuestionBatchDraft(
+            @RequestBody(required = false) AiAdminQuestionBatchDraftRequest draftRequest,
+            HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        if (!userService.isAdmin(loginUser)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        if (draftRequest == null) {
+            draftRequest = new AiAdminQuestionBatchDraftRequest();
+        }
+        return ResultUtils.success(aiService.generateAdminQuestionBatchDraft(
+                draftRequest.getPrompt(),
+                draftRequest.getHistory(),
+                draftRequest.getCount()));
+    }
+
+    @PostMapping("/admin/bank/draft")
+    public BaseResponse<AiAdminBankDraftVO> generateAdminBankDraft(
+            @RequestBody(required = false) AiAdminBankDraftRequest draftRequest,
+            HttpServletRequest request) {
+        User loginUser = userService.getLoginUser(request);
+        if (!userService.isAdmin(loginUser)) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        }
+        if (draftRequest == null) {
+            draftRequest = new AiAdminBankDraftRequest();
+        }
+        return ResultUtils.success(aiService.generateAdminBankDraft(
+                draftRequest.getTopic(),
+                draftRequest.getCurrentTitle(),
+                draftRequest.getCurrentDescription()));
     }
 }
